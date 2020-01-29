@@ -28,7 +28,6 @@ class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), BlockEnti
 	companion object {
 		fun wrapBlock(world: World, targetPos: BlockPos, newState: BlockState): Boolean {
 			val targetState = world.getBlockState(targetPos)
-			println("wrapping $targetState")
 			
 			if (!canEnderBoxPickUp(world, targetPos)) return false
 			
@@ -53,9 +52,9 @@ class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), BlockEnti
 			world.setBlockState(targetPos, newState, 3)
 			
 			// store captured tile entity
-			val newTileEntity = EnderBoxBlockEntity.get(world, targetPos)
-			newTileEntity.storedBlock = BlockData(targetState, targetTileEntityNBT)
-			println("stored: ${newTileEntity.storedBlock}")
+			EnderBoxBlockEntity.get(world, targetPos).run {
+				storedBlock = BlockData(targetState, targetTileEntityNBT)
+			}
 			
 			return true
 		}
