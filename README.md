@@ -1,18 +1,18 @@
-# Fabric Example Mod - Kotlin
+<p align="center">
+	<img width=256px src="Images/icon.png" />
+</p>
 
-## Setup
+# Ender Box (Fabric)
 
-0. Create a new mod repository by pressing the "Use this template" button and clone the created repository.
+A cardboard box on steroids, including a slightly more expensive recipe.
 
-1. Edit build.gradle and mod.json to suit your needs.
-    * The "mixins" object can be removed from mod.json if you do not need to use mixins.
-    * Please replace all occurences of "modid" with your own mod ID - sometimes, a different string may also suffice.
-2. Run the following command:
+## Features
 
-```
-./gradlew idea
-```
+- Ender Box: a nice way to move blocks around while keeping their contents intact (heavily inspired by Mekanism cardboard box)
+- Ender Boxer: automatically contains the block it's pointing at within an Ender Box while provided with a redstone signal.
 
-## License
+## Remarks
 
-This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
+The Ender Box not only serves to move around hard-to-move blocks like chests, but it also reduces lag when placed around machines that do a lot of processing every tick or are complex to render.
+
+To that end, the Ender Boxer allows you to automate the process of boxing and unboxing blocks to reduce lag when unused and still remain available for use when needed.
