@@ -6,6 +6,8 @@
 
 A cardboard box on steroids, including a slightly more expensive recipe.
 
+Download in [the Releases section](https://github.com/juliand665/Ender-Box-Fabric/releases) or on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/ender-box-fabric).
+
 ## Features
 
 - Ender Box: a nice way to move blocks around while keeping their contents intact (heavily inspired by Mekanism cardboard box)
