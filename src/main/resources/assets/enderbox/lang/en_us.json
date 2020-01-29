@@ -1,0 +1,10 @@
+{
+	"block.enderbox.ender_box": "Ender Box",
+	"block.enderbox.ender_boxer": "Ender Boxer",
+	"block.enderbox.ender_boxed": "Ender Boxed",
+	"tooltip.enderbox.ender_box.default": "Can be placed around blocks to move them around without breaking them, allowing you to e.g. move chests around easily.",
+	"tooltip.enderbox.ender_box.empty": "Empty",
+	"tooltip.enderbox.ender_box.contains_block": "Contains %s",
+	"tooltip.enderbox.ender_box.contains_block.advanced": "Contains %s (%s)",
+	"tooltip.enderbox.ender_boxer.default": "Encases the block it's pointing at in an ender box while provided with a redstone signal, for lag management (both FPS and TPS)."
+}

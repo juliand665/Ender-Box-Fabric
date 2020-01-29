@@ -1,36 +1,46 @@
 {
-  "schemaVersion": 1,
-  "id": "modid",
-  "version": "${version}",
+	"schemaVersion": 1,
+	"id": "enderbox",
+	"version": "${version}",
 
-  "name": "Example Mod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
-  "authors": [
-    "Me!"
-  ],
-  "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
-  },
+	"name": "Ender Box",
+	"description": "Take blocks with you or encase them without breaking them!",
+	"authors": [
+		"juliand665"
+	],
+	"contact": {
+		"homepage": "https://dapprgames.com/",
+		"sources": "https://github.com/juliand665/Ender-Box",
+		"issues": "https://github.com/juliand665/Ender-Box/issues"
+	},
 
-  "license": "CC0-1.0",
-  "icon": "assets/modid/icon.png",
+	"license": "MIT",
+	"icon": "assets/enderbox/icon.png",
 
-  "environment": "*",
-  "entrypoints": {
-    "main": [
-      "net.fabricmc.example.ExampleModKt::init"
-    ]
-  },
-  "mixins": [
-    "modid.mixins.json"
-  ],
-  "depends": {
-    "fabricloader": ">=0.4.0",
-    "fabric": "*",
-    "fabric-language-kotlin": "*"
-  },
-  "suggests": {
-    "flamingo": "*"
-  }
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			{
+				"adapter": "kotlin",
+				"value": "enderbox.EnderBoxMod::initialize"
+			}
+		],
+		"client": [
+			{
+				"adapter": "kotlin",
+				"value": "enderbox.EnderBoxMod::initializeClient"
+			}
+		]
+	},
+	"mixins": [
+	],
+
+	"depends": {
+		"fabricloader": ">=0.4.0",
+		"fabric": "*",
+		"fabric-language-kotlin": "*"
+	},
+	"suggests": {
+		"tooltipwrap": "*"
+	}
 }

@@ -1,0 +1,5 @@
+{
+    "variants": {
+        "": { "model": "enderbox:block/ender_box" }
+    }
+}

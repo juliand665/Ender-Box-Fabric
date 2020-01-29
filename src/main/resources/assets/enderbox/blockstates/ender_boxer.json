@@ -1,0 +1,10 @@
+{
+    "variants": {
+        "facing=up": { "model": "enderbox:block/ender_boxer", "x": 270 },
+        "facing=down": { "model": "enderbox:block/ender_boxer", "x": 90 },
+        "facing=north": { "model": "enderbox:block/ender_boxer" },
+        "facing=south": { "model": "enderbox:block/ender_boxer", "y": 180 },
+        "facing=west": { "model": "enderbox:block/ender_boxer", "y": 270 },
+        "facing=east": { "model": "enderbox:block/ender_boxer", "y": 90 }
+    }
+}
