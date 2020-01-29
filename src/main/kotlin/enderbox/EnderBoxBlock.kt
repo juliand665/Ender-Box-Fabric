@@ -115,7 +115,7 @@ fun canEnderBoxPickUp(blockView: BlockView, pos: BlockPos): Boolean {
 	return !isBlacklisted(blockState.block.identifier.toString())
 }
 
-val enderBoxBlacklist: List<String> = listOf() // TODO
+val enderBoxBlacklist: List<String> = listOf("${EnderBoxMod.modID}:ender_box") // TODO
 
 fun isBlacklisted(blockName: String): Boolean {
 	for (glob in enderBoxBlacklist) {
