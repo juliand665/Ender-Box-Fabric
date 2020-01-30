@@ -42,8 +42,8 @@ object EnderBoxMod {
 	
 	@Suppress("unused")
 	fun initializeClient() {
-		BlockEntityRendererRegistry.INSTANCE.register(enderBoxBlockEntity, ::EnderBoxRenderer)
 		BlockRenderLayerMap.INSTANCE.putBlock(enderBoxBlock, RenderLayer.getTranslucent())
+		BlockEntityRendererRegistry.INSTANCE.register(enderBoxBlockEntity, ::EnderBoxRenderer)
 	}
 	
 	fun identifier(path: String) = Identifier(modID, path)

@@ -2,7 +2,6 @@
 	"schemaVersion": 1,
 	"id": "enderbox",
 	"version": "${version}",
-
 	"name": "Ender Box",
 	"description": "Take blocks with you or encase them without breaking them!",
 	"authors": [
@@ -13,10 +12,8 @@
 		"sources": "https://github.com/juliand665/Ender-Box",
 		"issues": "https://github.com/juliand665/Ender-Box/issues"
 	},
-
 	"license": "MIT",
 	"icon": "assets/enderbox/icon.png",
-
 	"environment": "*",
 	"entrypoints": {
 		"main": [
@@ -33,8 +30,8 @@
 		]
 	},
 	"mixins": [
+		"enderbox.mixins.json"
 	],
-
 	"depends": {
 		"fabricloader": ">=0.4.0",
 		"fabric": "*",

@@ -3,6 +3,7 @@ package enderbox
 import net.minecraft.block.BlockState
 import net.minecraft.client.item.TooltipContext
 import net.minecraft.item.*
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Formatting
@@ -21,6 +22,8 @@ class EnderBoxItem(settings: Settings) : BlockItem(EnderBoxMod.enderBoxBlock, se
 		
 		val blockData = itemStack.blockData
 		val contentsDesc = if (blockData != null) {
+			//println(itemStack.tag)
+			//println(itemStack.tag?.getCompound(blockDataKey))
 			val block = blockData.block
 			if (context.isAdvanced) {
 				localized("tooltip", id, "contains_block.advanced", block.name, block.identifier)
@@ -43,7 +46,7 @@ class EnderBoxItem(settings: Settings) : BlockItem(EnderBoxMod.enderBoxBlock, se
 	}
 	
 	override fun place(context: ItemPlacementContext): ActionResult {
-		if (context.world.isClient) return ActionResult.SUCCESS
+		if (context.world.isClient) return super.place(context)
 		
 		// disallow placing empty boxes
 		val blockData = context.stack.blockData ?: return ActionResult.PASS
@@ -80,12 +83,16 @@ val ItemStack.hasBlockData
 	get() = tag?.contains(blockDataKey) == true
 
 var ItemStack.blockData: BlockData?
-	get() = tag?.getCompound(blockDataKey)?.let(::BlockData)
+	get() = tag?.getOptionalCompound(blockDataKey)?.let(::BlockData)
 	set(blockData) {
-		blockData
-			?.let { orCreateTag.put(blockDataKey, it.toTag()) }
-			?: tag?.remove(blockDataKey)
+		if (blockData != null) {
+			orCreateTag.put(blockDataKey, blockData.toTag())
+		} else {
+			tag?.remove(blockDataKey)
+		}
 	}
 
 val Item.identifier
 	get() = Registry.ITEM.getId(this)
+
+fun CompoundTag.getOptionalCompound(key: String): CompoundTag? = if (contains(key)) getCompound(key) else null

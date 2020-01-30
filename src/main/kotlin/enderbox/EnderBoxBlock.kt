@@ -106,9 +106,12 @@ class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), BlockEnti
 	
 	override fun onUse(blockState: BlockState, world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, hitResult: BlockHitResult): ActionResult {
 		val newState = { blockData: BlockData ->
-			if (player.isSneaking) blockData.blockState
-			val context = ItemUsageContext(player, hand, hitResult)
-			blockData.block.getPlacementState(ItemPlacementContext(context)) ?: blockData.blockState
+			if (player.isSneaking) {
+				blockData.blockState.also { println("sneaking! result: $it") }
+			} else {
+				val context = ItemUsageContext(player, hand, hitResult)
+				blockData.block.getPlacementState(ItemPlacementContext(context)) ?: blockData.blockState
+			}
 		}
 		
 		val placed = unwrapBlock(world, pos, newState)

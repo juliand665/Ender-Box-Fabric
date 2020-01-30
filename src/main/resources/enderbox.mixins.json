@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"package": "enderbox.mixin",
+	"compatibilityLevel": "JAVA_8",
+	"mixins": [
+	],
+	"client": [
+		"BuiltinModelItemRendererMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
