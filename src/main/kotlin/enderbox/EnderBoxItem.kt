@@ -46,8 +46,7 @@ class EnderBoxItem(settings: Settings) : BlockItem(EnderBoxMod.enderBoxBlock, se
 		if (context.world.isClient) return ActionResult.SUCCESS
 		
 		// disallow placing empty boxes
-		val blockData = context.stack.blockData
-		if (blockData == null) return ActionResult.PASS
+		val blockData = context.stack.blockData ?: return ActionResult.PASS
 		
 		val result = super.place(context)
 		
