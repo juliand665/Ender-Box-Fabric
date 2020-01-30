@@ -9,6 +9,7 @@ import net.minecraft.item.ItemPlacementContext
 import net.minecraft.item.ItemStack
 import net.minecraft.item.ItemUsageContext
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.sound.SoundCategory
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.ItemScatterer
@@ -26,12 +27,12 @@ val enderBoxMaterial: Material = FabricMaterialBuilder(MaterialColor.BLACK)
 
 class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), BlockEntityProvider {
 	companion object {
-		fun wrapBlock(world: World, targetPos: BlockPos, newState: BlockState): Boolean {
+		fun wrapBlock(world: World, targetPos: BlockPos, newState: BlockState, isCreative: Boolean): Boolean {
 			val targetState = world.getBlockState(targetPos)
 			
-			if (!canEnderBoxPickUp(world, targetPos)) return false
+			if (!canEnderBoxPickUp(world, targetPos, isCreative)) return false
 			
-			// TODO SoundHelpers.playPlacementSound(world, targetPos, this)
+			playPlacementSound(world, targetPos)
 			
 			if (world.isClient) return true
 			
@@ -63,18 +64,33 @@ class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), BlockEnti
 			val tileEntity = EnderBoxBlockEntity.get(world, targetPos)
 			val blockData = tileEntity.storedBlock
 			
-			//SoundHelpers.playPlacementSound(world, targetPos, this)
+			playPlacementSound(world, targetPos)
 			
 			if (world.isClient) return blockData
 			
-			world.setBlockState(targetPos, newState(blockData), 3)
+			val state = newState(blockData)
+			world.setBlockState(targetPos, state, 3)
 			
 			blockData.updatePosition(targetPos)
 			blockData.blockEntityTag?.also { world.getBlockEntity(targetPos)?.fromTag(it) }
 			
-			world.blockTickScheduler.schedule(targetPos, blockData.block, 0) // e.g. makes sugar cane pop off if placed invalidly, but unfortunately doesn't affect cactus
+			if (!state.canPlaceAt(world, targetPos)) {
+				world.breakBlock(targetPos, true)
+			}
 			
 			return blockData
+		}
+		
+		fun playPlacementSound(world: World, pos: BlockPos) {
+			val soundGroup = EnderBoxMod.enderBoxBlock.defaultState.soundGroup
+			world.playSound(
+				null,
+				pos,
+				soundGroup.placeSound,
+				SoundCategory.BLOCKS,
+				(soundGroup.volume + 1.0F) / 2.0F,
+				soundGroup.pitch * 0.8F
+			)
 		}
 	}
 	
@@ -90,8 +106,9 @@ class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), BlockEnti
 	
 	override fun onUse(blockState: BlockState, world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, hitResult: BlockHitResult): ActionResult {
 		val newState = { blockData: BlockData ->
+			if (player.isSneaking) blockData.blockState
 			val context = ItemUsageContext(player, hand, hitResult)
-			blockData.block.getPlacementState(ItemPlacementContext(context))!!
+			blockData.block.getPlacementState(ItemPlacementContext(context)) ?: blockData.blockState
 		}
 		
 		val placed = unwrapBlock(world, pos, newState)
@@ -106,11 +123,17 @@ class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), BlockEnti
 		
 		return ActionResult.SUCCESS
 	}
+	
+	override fun getPickStack(blockView: BlockView, pos: BlockPos, blockState: BlockState): ItemStack {
+		return ItemStack(this).apply {
+			blockData = EnderBoxBlockEntity.get(blockView, pos).storedBlock
+		}
+	}
 }
 
-fun canEnderBoxPickUp(blockView: BlockView, pos: BlockPos): Boolean {
+fun canEnderBoxPickUp(blockView: BlockView, pos: BlockPos, isCreative: Boolean): Boolean {
 	val blockState = blockView.getBlockState(pos)
-	if (blockState.getHardness(blockView, pos) < 0) return false // unbreakable
+	if (!isCreative && blockState.getHardness(blockView, pos) < 0) return false // unbreakable
 	
 	return !isBlacklisted(blockState.block.identifier.toString())
 }

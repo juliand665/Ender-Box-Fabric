@@ -12,55 +12,64 @@ import net.minecraft.world.World
 const val blockDataKey = "blockData"
 
 class EnderBoxItem(settings: Settings) : BlockItem(EnderBoxMod.enderBoxBlock, settings) {
-	override fun appendTooltip(itemStack: ItemStack?, world: World?, tooltip: MutableList<Text>?, context: TooltipContext?) {
-		super.appendTooltip(itemStack!!, world, tooltip!!, context!!)
+	override fun appendTooltip(itemStack: ItemStack, world: World?, tooltip: MutableList<Text>, context: TooltipContext) {
+		super.appendTooltip(itemStack, world, tooltip, context)
 		
-		tooltip.add(localized("tooltip", identifier, "default"))
+		val id = identifier
 		
-		val contentsDesc = if (itemStack.hasBlockData) {
-			val block = itemStack.blockData.block
+		tooltip.add(localized("tooltip", id, "default"))
+		
+		val blockData = itemStack.blockData
+		val contentsDesc = if (blockData != null) {
+			val block = blockData.block
 			if (context.isAdvanced) {
-				localized("tooltip", identifier, "contains_block.advanced", block.name, block.identifier)
+				localized("tooltip", id, "contains_block.advanced", block.name, block.identifier)
 			} else {
-				localized("tooltip", identifier, "contains_block", block.name)
+				localized("tooltip", id, "contains_block", block.name)
 			}
 		} else {
-			localized("tooltip", identifier, "empty")
+			localized("tooltip", id, "empty")
 		}
 		
 		tooltip.add(contentsDesc.styled { it.color = Formatting.YELLOW })
 	}
 	
-	override fun canPlace(context: ItemPlacementContext?, blockState: BlockState?): Boolean {
-		return if (context!!.stack.hasBlockData) {
+	override fun canPlace(context: ItemPlacementContext, blockState: BlockState?): Boolean {
+		return if (context.stack.hasBlockData) {
 			super.canPlace(context, blockState)
 		} else {
-			canEnderBoxPickUp(context.world, context.blockPos)
+			canEnderBoxPickUp(context.world, context.blockPos, context.player?.isCreative == true)
 		}
 	}
 	
-	override fun place(context: ItemPlacementContext?): ActionResult {
-		if (context!!.world.isClient) return ActionResult.SUCCESS
+	override fun place(context: ItemPlacementContext): ActionResult {
+		if (context.world.isClient) return ActionResult.SUCCESS
 		
 		// disallow placing empty boxes
-		if (!context.stack.hasBlockData) return ActionResult.PASS
+		val blockData = context.stack.blockData
+		if (blockData == null) return ActionResult.PASS
 		
 		val result = super.place(context)
 		
 		if (result == ActionResult.SUCCESS) {
 			val blockEntity = EnderBoxBlockEntity.get(context.world, context.blockPos)
-			blockEntity.storedBlock = context.stack.blockData
+			blockEntity.storedBlock = blockData
 		}
 		
 		return result
 	}
 	
-	override fun useOnBlock(context: ItemUsageContext?): ActionResult {
-		if (context!!.stack.hasBlockData) return ActionResult.PASS
+	override fun useOnBlock(context: ItemUsageContext): ActionResult {
+		if (context.stack.hasBlockData) return super.useOnBlock(context) // placement
 		
-		val success = EnderBoxBlock.wrapBlock(context.world, context.blockPos, EnderBoxMod.enderBoxBlock.defaultState)
+		val isCreative = context.player?.isCreative == true
+		val success = EnderBoxBlock.wrapBlock(
+			context.world, context.blockPos,
+			EnderBoxMod.enderBoxBlock.defaultState,
+			isCreative
+		)
 		
-		if (success && !context.player!!.isCreative) {
+		if (success && !isCreative) {
 			context.stack.decrement(1)
 		}
 		
@@ -69,10 +78,15 @@ class EnderBoxItem(settings: Settings) : BlockItem(EnderBoxMod.enderBoxBlock, se
 }
 
 val ItemStack.hasBlockData
-	get() = orCreateTag.contains(blockDataKey)
+	get() = tag?.contains(blockDataKey) == true
 
-val ItemStack.blockData
-	get() = BlockData(orCreateTag.getCompound(blockDataKey))
+var ItemStack.blockData: BlockData?
+	get() = tag?.getCompound(blockDataKey)?.let(::BlockData)
+	set(blockData) {
+		blockData
+			?.let { orCreateTag.put(blockDataKey, it.toTag()) }
+			?: tag?.remove(blockDataKey)
+	}
 
 val Item.identifier
 	get() = Registry.ITEM.getId(this)

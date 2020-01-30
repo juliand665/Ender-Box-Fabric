@@ -10,12 +10,13 @@ import net.minecraft.item.ItemGroup
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import java.util.function.Supplier
 
 object EnderBoxMod {
 	const val modID = "enderbox"
 	
-	val logger = LogManager.getLogger()
+	val logger: Logger = LogManager.getLogger()
 	
 	val enderBoxBlock = EnderBoxBlock(
 		FabricBlockSettings
