@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "enderbox:ender_boxer"
+    ]
+  },
+  "criteria": {
+    "has_ender_box": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "enderbox:ender_box"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "enderbox:ender_boxer"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_ender_box",
+      "has_the_recipe"
+    ]
+  ]
+}
