@@ -1,8 +1,12 @@
 package enderbox
 
+import enderbox.EnderBoxBlock.Companion.canEnderBoxPickUp
 import net.minecraft.block.BlockState
 import net.minecraft.client.item.TooltipContext
-import net.minecraft.item.*
+import net.minecraft.item.BlockItem
+import net.minecraft.item.ItemPlacementContext
+import net.minecraft.item.ItemStack
+import net.minecraft.item.ItemUsageContext
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
@@ -10,13 +14,11 @@ import net.minecraft.util.Formatting
 import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
 
-const val blockDataKey = "blockData"
-
-class EnderBoxItem(settings: Settings) : BlockItem(EnderBoxMod.enderBoxBlock, settings) {
+class EnderBoxItem(settings: Settings) : BlockItem(EnderBoxMod.humanEnderBoxBlock, settings) {
 	override fun appendTooltip(itemStack: ItemStack, world: World?, tooltip: MutableList<Text>, context: TooltipContext) {
 		super.appendTooltip(itemStack, world, tooltip, context)
 		
-		val id = identifier
+		val id = Registry.ITEM.getId(this)
 		
 		tooltip.add(localized("tooltip", id, "default"))
 		
@@ -65,7 +67,7 @@ class EnderBoxItem(settings: Settings) : BlockItem(EnderBoxMod.enderBoxBlock, se
 		val isCreative = context.player?.isCreative == true
 		val success = EnderBoxBlock.wrapBlock(
 			context.world, context.blockPos,
-			EnderBoxMod.enderBoxBlock.defaultState,
+			EnderBoxMod.humanEnderBoxBlock.defaultState,
 			isCreative
 		)
 		
@@ -76,6 +78,8 @@ class EnderBoxItem(settings: Settings) : BlockItem(EnderBoxMod.enderBoxBlock, se
 		return if (success) ActionResult.SUCCESS else ActionResult.PASS
 	}
 }
+
+private const val blockDataKey = "blockData"
 
 val ItemStack.hasBlockData
 	get() = tag?.contains(blockDataKey) == true
@@ -90,9 +94,6 @@ var ItemStack.blockData: BlockData?
 			tag?.remove(blockDataKey)
 		}
 	}
-
-val Item.identifier
-	get() = Registry.ITEM.getId(this)
 
 fun CompoundTag.getOptionalCompound(key: String): CompoundTag? =
 	if (contains(key)) getCompound(key) else null

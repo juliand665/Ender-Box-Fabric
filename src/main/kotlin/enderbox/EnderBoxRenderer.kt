@@ -13,12 +13,7 @@ class EnderBoxRenderer(dispatcher: BlockEntityRenderDispatcher) : BlockEntityRen
 		matrices: MatrixStack, vertexConsumers: VertexConsumerProvider,
 		light: Int, overlay: Int
 	) {
-		matrices.push()
-		matrices.translate(0.5, 0.5, 0.5) // center
-		
 		blockEntity.storedBlock.render(matrices, vertexConsumers, light, overlay)
-		
-		matrices.pop()
 	}
 	
 	companion object {
@@ -30,16 +25,11 @@ class EnderBoxRenderer(dispatcher: BlockEntityRenderDispatcher) : BlockEntityRen
 			matrices.push()
 			
 			MinecraftClient.getInstance().blockRenderManager.renderBlockAsEntity(
-				EnderBoxMod.enderBoxBlock.defaultState,
+				EnderBoxMod.humanEnderBoxBlock.defaultState,
 				matrices, vertexConsumers, light, overlay
 			)
 			
-			itemStack.blockData?.let { blockData ->
-				BlockEntityRenderDispatcher.INSTANCE.renderEntity(
-					EnderBoxBlockEntity().apply { storedBlock = blockData },
-					matrices, vertexConsumers, light, overlay
-				)
-			}
+			itemStack.blockData?.render(matrices, vertexConsumers, light, overlay)
 			
 			matrices.pop()
 		}
@@ -51,14 +41,15 @@ fun BlockData.render(
 	light: Int, overlay: Int
 ) {
 	matrices.push()
+	matrices.translate(0.5, 0.5, 0.5) // center
 	val scale = 0.9f
-	matrices.scale(scale, scale, scale)
+	matrices.scale(scale, scale, scale) // scale centered
+	matrices.translate(-0.5, -0.5, -0.5) // translate back to correct origin for block rendering
 	
-	// scale was centered; now translate back to correct origin for block rendering
-	matrices.translate(-0.5, -0.5, -0.5)
 	MinecraftClient.getInstance().blockRenderManager.renderBlockAsEntity(
 		blockState,
 		matrices, vertexConsumers, light, overlay
 	)
+	
 	matrices.pop()
 }

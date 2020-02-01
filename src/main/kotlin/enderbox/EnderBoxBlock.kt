@@ -1,31 +1,20 @@
 package enderbox
 
-import net.fabricmc.fabric.api.block.FabricMaterialBuilder
-import net.minecraft.block.*
+import net.minecraft.block.Block
+import net.minecraft.block.BlockEntityProvider
+import net.minecraft.block.BlockState
+import net.minecraft.block.Blocks
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.EntityType
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemPlacementContext
-import net.minecraft.item.ItemStack
-import net.minecraft.item.ItemUsageContext
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.sound.SoundCategory
-import net.minecraft.util.ActionResult
-import net.minecraft.util.Hand
-import net.minecraft.util.ItemScatterer
-import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.registry.Registry
 import net.minecraft.world.BlockView
 import net.minecraft.world.World
 import java.util.regex.Pattern
 
-val enderBoxMaterial: Material = FabricMaterialBuilder(MaterialColor.BLACK)
-	.lightPassesThrough()
-	.notSolid()
-	.build()
-
-class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), BlockEntityProvider {
+open class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), BlockEntityProvider {
 	override fun createBlockEntity(blockView: BlockView?): BlockEntity? = EnderBoxBlockEntity()
 	
 	override fun isSimpleFullBlock(blockState: BlockState?, blockView: BlockView?, blockPos: BlockPos?) = false
@@ -35,35 +24,6 @@ class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), BlockEnti
 	override fun isTranslucent(blockState: BlockState?, blockView: BlockView?, blockPos: BlockPos?): Boolean = true
 	
 	override fun canSuffocate(blockState: BlockState?, blockView: BlockView?, blockPos: BlockPos?): Boolean = false
-	
-	override fun onUse(blockState: BlockState, world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, hitResult: BlockHitResult): ActionResult {
-		val newState = { blockData: BlockData ->
-			if (player.isSneaking) {
-				blockData.blockState.also { println("sneaking! result: $it") }
-			} else {
-				val context = ItemUsageContext(player, hand, hitResult)
-				blockData.block.getPlacementState(ItemPlacementContext(context)) ?: blockData.blockState
-			}
-		}
-		
-		val placed = unwrapBlock(world, pos, newState)
-		
-		if (world.isClient) return ActionResult.SUCCESS
-		
-		placed.block.onPlaced(world, pos, newState(placed), player, placed.pickedBlock(world, pos))
-		
-		if (!player.isCreative) {
-			ItemScatterer.spawn(world, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), ItemStack(EnderBoxMod.enderBoxBlock))
-		}
-		
-		return ActionResult.SUCCESS
-	}
-	
-	override fun getPickStack(blockView: BlockView, pos: BlockPos, blockState: BlockState): ItemStack {
-		return ItemStack(this).apply {
-			blockData = EnderBoxBlockEntity.get(blockView, pos).storedBlock
-		}
-	}
 	
 	companion object {
 		fun wrapBlock(world: World, targetPos: BlockPos, newState: BlockState, isCreative: Boolean): Boolean {
@@ -111,7 +71,12 @@ class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), BlockEnti
 			world.setBlockState(targetPos, state, 3)
 			
 			blockData.updatePosition(targetPos)
-			blockData.blockEntityTag?.also { world.getBlockEntity(targetPos)?.fromTag(it) }
+			val cachedBlockEntity = blockData.cachedBlockEntity
+			if (cachedBlockEntity != null) {
+				world.setBlockEntity(targetPos, cachedBlockEntity)
+			} else {
+				blockData.blockEntityTag?.also { world.getBlockEntity(targetPos)?.fromTag(it) }
+			}
 			
 			if (!state.canPlaceAt(world, targetPos)) {
 				world.breakBlock(targetPos, true)
@@ -121,7 +86,7 @@ class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), BlockEnti
 		}
 		
 		fun playPlacementSound(world: World, pos: BlockPos) {
-			val soundGroup = EnderBoxMod.enderBoxBlock.defaultState.soundGroup
+			val soundGroup = EnderBoxMod.humanEnderBoxBlock.defaultState.soundGroup
 			world.playSound(
 				null,
 				pos,

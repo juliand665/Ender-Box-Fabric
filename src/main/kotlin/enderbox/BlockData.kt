@@ -3,7 +3,6 @@ package enderbox
 import com.google.common.collect.ImmutableMap
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
-import net.minecraft.block.BlockWithEntity
 import net.minecraft.block.Blocks
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.item.ItemStack
@@ -16,8 +15,8 @@ private const val blockStateKey = "blockState"
 private const val blockEntityTagKey = "blockEntityTag"
 
 data class BlockData(
-	var blockState: BlockState = BlockState(Blocks.AIR, ImmutableMap.of()),
-	var blockEntityTag: CompoundTag? = null,
+	val blockState: BlockState = BlockState(Blocks.AIR, ImmutableMap.of()),
+	val blockEntityTag: CompoundTag? = null,
 	var cachedBlockEntity: BlockEntity? = null
 ) {
 	val block: Block
@@ -41,6 +40,10 @@ data class BlockData(
 	
 	/** updates the contained tile entity's position, if applicable  */
 	fun updatePosition(position: BlockPos) {
+		if (!(cachedBlockEntity?.pos == position)) {
+			cachedBlockEntity = null
+		}
+		
 		blockEntityTag?.apply {
 			// this is kinda hacky, but there's no other option
 			putInt("x", position.x)
@@ -60,11 +63,4 @@ data class BlockData(
 		// construct the dropped item ourselves
 		return ItemStack(blockState.block, 1)
 	}
-	
-	fun blockEntity(blockView: BlockView): BlockEntity? = cachedBlockEntity
-		?: blockEntityTag?.let {
-			(block as? BlockWithEntity)
-				?.createBlockEntity(blockView)
-				?.apply { fromTag(it) }
-		}
 }
