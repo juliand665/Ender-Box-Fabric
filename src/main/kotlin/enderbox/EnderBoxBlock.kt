@@ -26,6 +26,45 @@ val enderBoxMaterial: Material = FabricMaterialBuilder(MaterialColor.BLACK)
 	.build()
 
 class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), BlockEntityProvider {
+	override fun createBlockEntity(blockView: BlockView?): BlockEntity? = EnderBoxBlockEntity()
+	
+	override fun isSimpleFullBlock(blockState: BlockState?, blockView: BlockView?, blockPos: BlockPos?) = false
+	
+	override fun allowsSpawning(blockState: BlockState?, blockView: BlockView?, blockPos: BlockPos?, entityType: EntityType<*>?) = false
+	
+	override fun isTranslucent(blockState: BlockState?, blockView: BlockView?, blockPos: BlockPos?): Boolean = true
+	
+	override fun canSuffocate(blockState: BlockState?, blockView: BlockView?, blockPos: BlockPos?): Boolean = false
+	
+	override fun onUse(blockState: BlockState, world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, hitResult: BlockHitResult): ActionResult {
+		val newState = { blockData: BlockData ->
+			if (player.isSneaking) {
+				blockData.blockState.also { println("sneaking! result: $it") }
+			} else {
+				val context = ItemUsageContext(player, hand, hitResult)
+				blockData.block.getPlacementState(ItemPlacementContext(context)) ?: blockData.blockState
+			}
+		}
+		
+		val placed = unwrapBlock(world, pos, newState)
+		
+		if (world.isClient) return ActionResult.SUCCESS
+		
+		placed.block.onPlaced(world, pos, newState(placed), player, placed.pickedBlock(world, pos))
+		
+		if (!player.isCreative) {
+			ItemScatterer.spawn(world, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), ItemStack(EnderBoxMod.enderBoxBlock))
+		}
+		
+		return ActionResult.SUCCESS
+	}
+	
+	override fun getPickStack(blockView: BlockView, pos: BlockPos, blockState: BlockState): ItemStack {
+		return ItemStack(this).apply {
+			blockData = EnderBoxBlockEntity.get(blockView, pos).storedBlock
+		}
+	}
+	
 	companion object {
 		fun wrapBlock(world: World, targetPos: BlockPos, newState: BlockState, isCreative: Boolean): Boolean {
 			val targetState = world.getBlockState(targetPos)
@@ -92,75 +131,36 @@ class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), BlockEnti
 				soundGroup.pitch * 0.8F
 			)
 		}
-	}
-	
-	override fun createBlockEntity(blockView: BlockView?): BlockEntity? = EnderBoxBlockEntity()
-	
-	override fun isSimpleFullBlock(blockState: BlockState?, blockView: BlockView?, blockPos: BlockPos?) = false
-	
-	override fun allowsSpawning(blockState: BlockState?, blockView: BlockView?, blockPos: BlockPos?, entityType: EntityType<*>?) = false
-	
-	override fun isTranslucent(blockState: BlockState?, blockView: BlockView?, blockPos: BlockPos?): Boolean = true
-	
-	override fun canSuffocate(blockState: BlockState?, blockView: BlockView?, blockPos: BlockPos?): Boolean = false
-	
-	override fun onUse(blockState: BlockState, world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, hitResult: BlockHitResult): ActionResult {
-		val newState = { blockData: BlockData ->
-			if (player.isSneaking) {
-				blockData.blockState.also { println("sneaking! result: $it") }
-			} else {
-				val context = ItemUsageContext(player, hand, hitResult)
-				blockData.block.getPlacementState(ItemPlacementContext(context)) ?: blockData.blockState
+		
+		fun canEnderBoxPickUp(blockView: BlockView, pos: BlockPos, isCreative: Boolean): Boolean {
+			val blockState = blockView.getBlockState(pos)
+			if (!isCreative && blockState.getHardness(blockView, pos) < 0) return false // unbreakable
+			
+			return !isBlacklisted(blockState.block.identifier.toString())
+		}
+		
+		val enderBoxBlacklist: List<String> = listOf("${EnderBoxMod.modID}:ender_box") // TODO
+		
+		fun isBlacklisted(blockName: String): Boolean {
+			for (glob in enderBoxBlacklist) {
+				val pattern = StringBuilder(glob.length)
+				for (part in glob.split("""\*""".toRegex()).toTypedArray()) {
+					if (part.isNotEmpty()) {
+						pattern.append(Pattern.quote(part))
+					}
+					pattern.append(".*")
+				}
+				
+				// delete last ".*" wildcard
+				pattern.delete(pattern.length - 2, pattern.length)
+				
+				if (Pattern.matches(pattern.toString(), blockName)) {
+					return true
+				}
 			}
-		}
-		
-		val placed = unwrapBlock(world, pos, newState)
-		
-		if (world.isClient) return ActionResult.SUCCESS
-		
-		placed.block.onPlaced(world, pos, newState(placed), player, placed.pickedBlock(world, pos))
-		
-		if (!player.isCreative) {
-			ItemScatterer.spawn(world, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), ItemStack(EnderBoxMod.enderBoxBlock))
-		}
-		
-		return ActionResult.SUCCESS
-	}
-	
-	override fun getPickStack(blockView: BlockView, pos: BlockPos, blockState: BlockState): ItemStack {
-		return ItemStack(this).apply {
-			blockData = EnderBoxBlockEntity.get(blockView, pos).storedBlock
+			return false
 		}
 	}
-}
-
-fun canEnderBoxPickUp(blockView: BlockView, pos: BlockPos, isCreative: Boolean): Boolean {
-	val blockState = blockView.getBlockState(pos)
-	if (!isCreative && blockState.getHardness(blockView, pos) < 0) return false // unbreakable
-	
-	return !isBlacklisted(blockState.block.identifier.toString())
-}
-
-val enderBoxBlacklist: List<String> = listOf("${EnderBoxMod.modID}:ender_box") // TODO
-
-fun isBlacklisted(blockName: String): Boolean {
-	for (glob in enderBoxBlacklist) {
-		val pattern = StringBuilder(glob.length)
-		for (part in glob.split("""\*""".toRegex()).toTypedArray()) {
-			if (part.isNotEmpty()) {
-				pattern.append(Pattern.quote(part))
-			}
-			pattern.append(".*")
-		}
-		
-		// delete last ".*" wildcard
-		pattern.delete(pattern.length - 2, pattern.length)
-		
-		if (Pattern.matches(pattern.toString(), blockName)) {
-			return true
-		}
-	}
-	return false
 }
 
 fun World.removeBlock(pos: BlockPos) = setBlockState(pos, Blocks.AIR.defaultState)

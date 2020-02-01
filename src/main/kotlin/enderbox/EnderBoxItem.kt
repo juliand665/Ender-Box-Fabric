@@ -22,8 +22,6 @@ class EnderBoxItem(settings: Settings) : BlockItem(EnderBoxMod.enderBoxBlock, se
 		
 		val blockData = itemStack.blockData
 		val contentsDesc = if (blockData != null) {
-			//println(itemStack.tag)
-			//println(itemStack.tag?.getCompound(blockDataKey))
 			val block = blockData.block
 			if (context.isAdvanced) {
 				localized("tooltip", id, "contains_block.advanced", block.name, block.identifier)
@@ -86,7 +84,8 @@ var ItemStack.blockData: BlockData?
 	get() = tag?.getOptionalCompound(blockDataKey)?.let(::BlockData)
 	set(blockData) {
 		if (blockData != null) {
-			orCreateTag.put(blockDataKey, blockData.toTag())
+			@Suppress("UsePropertyAccessSyntax")
+			getOrCreateTag().put(blockDataKey, blockData.toTag())
 		} else {
 			tag?.remove(blockDataKey)
 		}
@@ -95,4 +94,5 @@ var ItemStack.blockData: BlockData?
 val Item.identifier
 	get() = Registry.ITEM.getId(this)
 
-fun CompoundTag.getOptionalCompound(key: String): CompoundTag? = if (contains(key)) getCompound(key) else null
+fun CompoundTag.getOptionalCompound(key: String): CompoundTag? =
+	if (contains(key)) getCompound(key) else null
