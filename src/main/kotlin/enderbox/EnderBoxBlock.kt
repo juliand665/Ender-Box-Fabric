@@ -36,7 +36,7 @@ open class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), Bloc
 			if (world.isClient) return true
 			
 			// capture tile entity
-			val targetTileEntityNBT = world.getBlockEntity(targetPos)?.toTag(CompoundTag())
+			val targetBlockEntityTag = world.getBlockEntity(targetPos)?.toTag(CompoundTag())
 			
 			// replace block
 			// We remove the tile entity before removing the block so the breakBlock() handler can't use it to drop items or cause flux etc.
@@ -53,7 +53,7 @@ open class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), Bloc
 			
 			// store captured tile entity
 			EnderBoxBlockEntity.get(world, targetPos).run {
-				storedBlock = BlockData(targetState, targetTileEntityNBT)
+				storedBlock = BlockData(targetState, targetBlockEntityTag)
 			}
 			
 			return true
@@ -71,12 +71,7 @@ open class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), Bloc
 			world.setBlockState(targetPos, state, 3)
 			
 			blockData.updatePosition(targetPos)
-			val cachedBlockEntity = blockData.cachedBlockEntity
-			if (cachedBlockEntity != null) {
-				world.setBlockEntity(targetPos, cachedBlockEntity)
-			} else {
-				blockData.blockEntityTag?.also { world.getBlockEntity(targetPos)?.fromTag(it) }
-			}
+			blockData.blockEntityTag?.also { world.getBlockEntity(targetPos)?.fromTag(it) }
 			
 			if (!state.canPlaceAt(world, targetPos)) {
 				world.breakBlock(targetPos, true)

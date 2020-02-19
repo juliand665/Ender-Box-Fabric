@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
-import net.minecraft.block.entity.BlockEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtHelper
@@ -16,8 +15,7 @@ private const val blockEntityTagKey = "blockEntityTag"
 
 data class BlockData(
 	val blockState: BlockState = BlockState(Blocks.AIR, ImmutableMap.of()),
-	val blockEntityTag: CompoundTag? = null,
-	var cachedBlockEntity: BlockEntity? = null
+	val blockEntityTag: CompoundTag? = null
 ) {
 	val block: Block
 		get() = blockState.block
@@ -40,10 +38,6 @@ data class BlockData(
 	
 	/** updates the contained tile entity's position, if applicable  */
 	fun updatePosition(position: BlockPos) {
-		if (!(cachedBlockEntity?.pos == position)) {
-			cachedBlockEntity = null
-		}
-		
 		blockEntityTag?.apply {
 			// this is kinda hacky, but there's no other option
 			putInt("x", position.x)
