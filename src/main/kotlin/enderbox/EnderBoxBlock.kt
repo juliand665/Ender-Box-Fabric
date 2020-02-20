@@ -122,7 +122,7 @@ open class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), Bloc
 			return !isBlacklisted(blockState.block.identifier.toString())
 		}
 		
-		val enderBoxBlacklist: List<String> = listOf("${EnderBoxMod.modID}:ender_box") // TODO
+		val enderBoxBlacklist: List<String> = listOf("${EnderBoxMod.modID}:ender_box", "${EnderBoxMod.modID}:ender_boxed") // TODO
 		
 		fun isBlacklisted(blockName: String): Boolean {
 			for (glob in enderBoxBlacklist) {
