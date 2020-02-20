@@ -26,7 +26,19 @@ open class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), Bloc
 	override fun canSuffocate(blockState: BlockState?, blockView: BlockView?, blockPos: BlockPos?): Boolean = false
 	
 	companion object {
+		private val runningCaptures = mutableSetOf<BlockPos>()
 		fun wrapBlock(world: World, targetPos: BlockPos, newState: BlockState, isCreative: Boolean): Boolean {
+			if (runningCaptures.contains(targetPos)) return false // don't wrap a block while it's already getting wrapped
+			runningCaptures.add(targetPos)
+			
+			try {
+				return doWrapBlock(world, targetPos, newState, isCreative)
+			} finally {
+				runningCaptures.remove(targetPos)
+			}
+		}
+		
+		private fun doWrapBlock(world: World, targetPos: BlockPos, newState: BlockState, isCreative: Boolean): Boolean {
 			val targetState = world.getBlockState(targetPos)
 			
 			if (!canEnderBoxPickUp(world, targetPos, isCreative)) return false
@@ -37,6 +49,8 @@ open class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), Bloc
 			
 			// capture tile entity
 			val targetBlockEntityTag = world.getBlockEntity(targetPos)?.toTag(CompoundTag())
+			
+			//println("wrapping block at $targetPos with state ${world.getBlockState(targetPos)}")
 			
 			// replace block
 			// We remove the tile entity before removing the block so the breakBlock() handler can't use it to drop items or cause flux etc.
@@ -49,12 +63,17 @@ open class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), Bloc
 				EnderBoxMod.logger.debug(e)
 			}
 			
-			world.setBlockState(targetPos, newState, 3)
+			world.setBlockEntity(targetPos, EnderBoxBlockEntity())
+			val didReplace = world.setBlockState(targetPos, newState, 0b1010) // no neighbor updates yet
+			assert(didReplace)
 			
 			// store captured tile entity
 			EnderBoxBlockEntity.get(world, targetPos).run {
 				storedBlock = BlockData(targetState, targetBlockEntityTag)
 			}
+			
+			targetState.onBlockAdded(world, targetPos, newState, false)
+			world.updateNeighbors(targetPos, targetState.block)
 			
 			return true
 		}
@@ -68,7 +87,7 @@ open class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), Bloc
 			if (world.isClient) return blockData
 			
 			val state = newState(blockData)
-			world.setBlockState(targetPos, state, 3)
+			world.setBlockState(targetPos, state, 0b1011)
 			
 			blockData.updatePosition(targetPos)
 			blockData.blockEntityTag?.also { world.getBlockEntity(targetPos)?.fromTag(it) }
@@ -76,6 +95,10 @@ open class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), Bloc
 			if (!state.canPlaceAt(world, targetPos)) {
 				world.breakBlock(targetPos, true)
 			}
+			
+			// e.g. make unwrapped blocks check if they're powered
+			world.updateNeighbor(targetPos, Blocks.AIR, targetPos)
+			// can't call Block::onPlaced because e.g. skulls read their data from the passed ItemStack
 			
 			return blockData
 		}

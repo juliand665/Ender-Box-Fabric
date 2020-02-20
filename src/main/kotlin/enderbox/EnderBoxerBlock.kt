@@ -3,7 +3,6 @@ package enderbox
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemPlacementContext
 import net.minecraft.item.ItemStack
 import net.minecraft.server.world.ServerWorld
@@ -14,6 +13,7 @@ import net.minecraft.util.BlockMirror
 import net.minecraft.util.BlockRotation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
+import net.minecraft.world.IWorld
 import net.minecraft.world.World
 import java.util.*
 
@@ -42,10 +42,12 @@ class EnderBoxerBlock(settings: Settings) : Block(settings.nonOpaque()) {
 		updateState(world, pos, blockState)
 	}
 	
-	override fun onBreak(world: World, pos: BlockPos, blockState: BlockState, breaker: PlayerEntity?) {
-		releaseBlock(world, pos, blockState)
+	override fun onBroken(world: IWorld, pos: BlockPos, blockState: BlockState) {
+		super.onBroken(world, pos, blockState)
 		
-		super.onBreak(world, pos, blockState, breaker)
+		(world as? World)?.let {
+			releaseBlock(it, pos, blockState)
+		}
 	}
 	
 	override fun scheduledTick(blockState: BlockState, world: ServerWorld, pos: BlockPos, random: Random) {
@@ -72,7 +74,7 @@ class EnderBoxerBlock(settings: Settings) : Block(settings.nonOpaque()) {
 		}
 	}
 	
-	private fun isTargetBoxed(world: World, pos: BlockPos, blockState: BlockState): Boolean {
+	private fun isTargetBoxed(world: IWorld, pos: BlockPos, blockState: BlockState): Boolean {
 		val targetPos = pos.offset(blockState.get(facing))
 		val targetState = world.getBlockState(targetPos)
 		return targetState.block is MachineEnderBoxBlock
