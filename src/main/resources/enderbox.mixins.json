@@ -5,7 +5,7 @@
 	"mixins": [
 	],
 	"client": [
-		"BuiltinModelItemRendererMixin"
+		"ItemRendererCallbackMixin",
 	],
 	"injectors": {
 		"defaultRequire": 1

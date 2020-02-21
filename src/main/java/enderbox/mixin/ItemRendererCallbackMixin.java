@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BuiltinModelItemRenderer.class)
-public abstract class BuiltinModelItemRendererMixin {
+public abstract class ItemRendererCallbackMixin {
 	@Inject(at = @At("HEAD"), method = "render", cancellable = true)
 	private void render(
 		ItemStack itemStack,
