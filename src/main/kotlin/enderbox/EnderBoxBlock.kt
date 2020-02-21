@@ -29,12 +29,13 @@ open class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), Bloc
 		private val runningCaptures = mutableSetOf<BlockPos>()
 		fun wrapBlock(world: World, targetPos: BlockPos, newState: BlockState, isCreative: Boolean): Boolean {
 			if (runningCaptures.contains(targetPos)) return false // don't wrap a block while it's already getting wrapped
-			runningCaptures.add(targetPos)
+			val pos = targetPos.toImmutable()
+			runningCaptures.add(pos)
 			
 			try {
 				return doWrapBlock(world, targetPos, newState, isCreative)
 			} finally {
-				runningCaptures.remove(targetPos)
+				runningCaptures.remove(pos)
 			}
 		}
 		
