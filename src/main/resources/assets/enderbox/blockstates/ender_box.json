@@ -1,5 +1,6 @@
 {
     "variants": {
-        "": { "model": "enderbox:block/ender_box" }
+        "transparent=false": { "model": "enderbox:block/ender_box" },
+        "transparent=true": { "model": "enderbox:block/ender_box_transparent" }
     }
 }

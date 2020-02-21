@@ -6,6 +6,8 @@
 	],
 	"client": [
 		"ItemRendererCallbackMixin",
+		"SettableCachedStateMixin",
+		"WorldRendererStatusMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

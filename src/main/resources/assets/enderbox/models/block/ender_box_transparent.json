@@ -1,0 +1,6 @@
+{
+	"parent": "enderbox:block/ender_box",
+	"textures": {
+		"all": "enderbox:block/ender_box_transparent"
+	}
+}

@@ -8,6 +8,8 @@ import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.EntityType
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.sound.SoundCategory
+import net.minecraft.state.StateManager
+import net.minecraft.state.property.BooleanProperty
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.registry.Registry
 import net.minecraft.world.BlockView
@@ -15,6 +17,15 @@ import net.minecraft.world.World
 import java.util.regex.Pattern
 
 open class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), BlockEntityProvider {
+	init {
+		defaultState = stateManager.defaultState
+			.with(transparent, false)
+	}
+	
+	override fun appendProperties(builder: StateManager.Builder<Block, BlockState>) {
+		builder.add(transparent)
+	}
+	
 	override fun createBlockEntity(blockView: BlockView?): BlockEntity? = EnderBoxBlockEntity()
 	
 	override fun isSimpleFullBlock(blockState: BlockState?, blockView: BlockView?, blockPos: BlockPos?) = false
@@ -26,6 +37,9 @@ open class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), Bloc
 	override fun canSuffocate(blockState: BlockState?, blockView: BlockView?, blockPos: BlockPos?): Boolean = false
 	
 	companion object {
+		// used for item rendering
+		val transparent: BooleanProperty = BooleanProperty.of("transparent")
+		
 		private val runningCaptures = mutableSetOf<BlockPos>()
 		fun wrapBlock(world: World, targetPos: BlockPos, newState: BlockState, isCreative: Boolean): Boolean {
 			if (runningCaptures.contains(targetPos)) return false // don't wrap a block while it's already getting wrapped
