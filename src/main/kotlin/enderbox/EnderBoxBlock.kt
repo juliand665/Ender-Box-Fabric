@@ -73,7 +73,6 @@ open class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), Bloc
 				storedBlock = BlockData(targetState, targetBlockEntityTag)
 			}
 			
-			targetState.onBlockAdded(world, targetPos, newState, false)
 			world.updateNeighbors(targetPos, targetState.block)
 			
 			return true
@@ -97,6 +96,7 @@ open class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), Bloc
 				world.breakBlock(targetPos, true)
 			}
 			
+			state.onBlockAdded(world, targetPos, state, false)
 			// e.g. make unwrapped blocks check if they're powered
 			world.updateNeighbor(targetPos, Blocks.AIR, targetPos)
 			// can't call Block::onPlaced because e.g. skulls read their data from the passed ItemStack
