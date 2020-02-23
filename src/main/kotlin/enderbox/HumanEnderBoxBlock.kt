@@ -24,7 +24,7 @@ class HumanEnderBoxBlock(settings: Settings) : EnderBoxBlock(settings) {
 			}
 		}
 		
-		val placed = unwrapBlock(world, pos, newState)
+		unwrapBlock(world, pos, newState)
 		
 		if (world.isClient) return ActionResult.SUCCESS
 		
