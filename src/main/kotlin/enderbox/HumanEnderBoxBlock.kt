@@ -28,8 +28,6 @@ class HumanEnderBoxBlock(settings: Settings) : EnderBoxBlock(settings) {
 		
 		if (world.isClient) return ActionResult.SUCCESS
 		
-		placed.block.onPlaced(world, pos, newState(placed), player, placed.pickedBlock(world, pos))
-		
 		if (!player.isCreative) {
 			ItemScatterer.spawn(world, pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble(), ItemStack(EnderBoxMod.humanEnderBoxBlock))
 		}

@@ -1,6 +1,8 @@
 package enderbox
 
 import com.google.common.collect.ImmutableMap
+import net.fabricmc.api.EnvType
+import net.fabricmc.api.Environment
 import net.minecraft.block.*
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.client.MinecraftClient
@@ -47,6 +49,7 @@ data class BlockData(
 		}
 	}
 	
+	@Environment(EnvType.CLIENT)
 	fun pickedBlock(blockView: BlockView, pos: BlockPos): ItemStack {
 		try {
 			// try to simulate picking the block
