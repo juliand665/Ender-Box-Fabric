@@ -4,6 +4,7 @@ import net.minecraft.client.item.TooltipContext
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.text.Text
+import net.minecraft.util.Formatting
 import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
 
@@ -13,6 +14,7 @@ class EnderBoxerItem(settings: Settings) : BlockItem(EnderBoxMod.enderBoxerBlock
 		
 		val id = Registry.ITEM.getId(this)
 		
-		tooltip.add(localized("tooltip", id, "default"))
+		val instructions = localized("tooltip", id, "default")
+		tooltip.add(instructions.styled { it.color = Formatting.GRAY })
 	}
 }

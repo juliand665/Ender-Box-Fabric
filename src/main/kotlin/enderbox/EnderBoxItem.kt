@@ -20,7 +20,8 @@ class EnderBoxItem(settings: Settings) : BlockItem(EnderBoxMod.humanEnderBoxBloc
 		
 		val id = Registry.ITEM.getId(this)
 		
-		tooltip.add(localized("tooltip", id, "default"))
+		val instructions = localized("tooltip", id, "default")
+		tooltip.add(instructions.styled { it.color = Formatting.GRAY })
 		
 		val blockData = itemStack.blockData
 		val contentsDesc = if (blockData != null) {
