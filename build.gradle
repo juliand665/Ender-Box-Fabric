@@ -35,7 +35,7 @@ dependencies {
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
-	modCompile "com.jamieswhiteshirt:developer-mode:${project.developer_mode_version}"
+	//modCompile "com.jamieswhiteshirt:developer-mode:${project.developer_mode_version}"
 	modCompile "io.github.prospector:modmenu:${project.mod_menu_version}"
 	// wish these worked, but curseforge's maven is just broken
 	//modCompile "resolution-control:resolution-control:${project.resolution_control_version}"
@@ -43,7 +43,7 @@ dependencies {
 	//modCompile "tooltip-autowrap:tooltipwrap:${project.tooltip_autowrap_version}"
 	modCompile curse.resolve("resolution-control", 2871026)
 	modCompile curse.resolve("dynamic-fps", 2871200)
-	modCompile curse.resolve("tooltip-autowrap", 2841166)
+	//modCompile curse.resolve("tooltip-autowrap", 2841166)
 
 	// Nullability Annotations (in decompiled mc code)
 	implementation "com.google.code.findbugs:jsr305:${project.findbugs_version}"

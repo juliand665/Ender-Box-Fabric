@@ -16,7 +16,15 @@ import net.minecraft.world.BlockView
 import net.minecraft.world.World
 import java.util.regex.Pattern
 
-open class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), BlockEntityProvider {
+open class EnderBoxBlock(
+	settings: Settings
+) : Block(
+	settings
+		.nonOpaque()
+		.suffocates { _, _, _ -> false }
+		.allowsSpawning { _, _, _, _ -> false }
+
+), BlockEntityProvider {
 	init {
 		defaultState = stateManager.defaultState
 			.with(transparent, false)
@@ -27,15 +35,9 @@ open class EnderBoxBlock(settings: Settings) : Block(settings.nonOpaque()), Bloc
 	}
 	
 	override fun createBlockEntity(blockView: BlockView?): BlockEntity? = EnderBoxBlockEntity()
-	
-	override fun isSimpleFullBlock(blockState: BlockState?, blockView: BlockView?, blockPos: BlockPos?) = false
-	
-	override fun allowsSpawning(blockState: BlockState?, blockView: BlockView?, blockPos: BlockPos?, entityType: EntityType<*>?) = false
-	
+
 	override fun isTranslucent(blockState: BlockState?, blockView: BlockView?, blockPos: BlockPos?): Boolean = true
-	
-	override fun canSuffocate(blockState: BlockState?, blockView: BlockView?, blockPos: BlockPos?): Boolean = false
-	
+
 	companion object {
 		// used for item rendering
 		val transparent: BooleanProperty = BooleanProperty.of("transparent")
